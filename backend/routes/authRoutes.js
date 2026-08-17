@@ -25,6 +25,7 @@ router.post("/login", async (req, res) => {
         username,
         password,
         full_name,
+        phone,
         role
       FROM users
       WHERE username = $1
@@ -40,7 +41,6 @@ router.post("/login", async (req, res) => {
 
     const user = result.rows[0];
 
-    // เช็ก password ตรง ๆ ก่อน
     if (password !== user.password) {
       return res.status(401).json({
         error: "รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง",
@@ -54,12 +54,12 @@ router.post("/login", async (req, res) => {
         id: user.id,
         username: user.username,
         full_name: user.full_name,
+        phone: user.phone,
         role: user.role,
       },
     });
 
   } catch (error) {
-
     console.error(
       "POST /api/auth/login error:",
       error

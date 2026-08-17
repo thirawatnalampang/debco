@@ -1653,10 +1653,12 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
 // =====================================================
 
 export default function AccountDetail() {
-
-  // รับ custNo จาก URL
-  // เช่น /accounts/0000553349
   const { custNo } = useParams();
+
+
+  const user = JSON.parse(
+    localStorage.getItem("user") || "null"
+  );
 
   const navigate = useNavigate();
 
@@ -1920,18 +1922,44 @@ const handleUpdatePayment = async (data) => {
 
         {/* FOOTER */}
 
-        <div className="footer-bar">
+<div className="footer-bar">
+  <div className="footer-info">
 
-          <span>
-            AR NO: {customer.ar_no}
-            &nbsp; เจ้าหน้าที่:{" "}
-            {customer.officer_name}
-            &nbsp;{" "}
-            {customer.officer_phone}
-          </span>
+    <div className="footer-item">
+      <span className="footer-label">AR NO</span>
+      <span className="footer-value">
+        {customer.ar_no || "—"}
+      </span>
+    </div>
 
-        </div>
+    <div className="footer-divider"></div>
 
+    <div className="footer-item">
+      <span className="footer-label">เจ้าหน้าที่</span>
+      <span className="footer-value">
+        {user?.full_name || "—"}
+      </span>
+    </div>
+
+    <div className="footer-divider"></div>
+
+    <div className="footer-item">
+      <span className="footer-label">โทรศัพท์</span>
+
+      <a
+        className="footer-phone"
+        href={
+          user?.phone
+            ? `tel:${user.phone}`
+            : undefined
+        }
+      >
+        ☎ {user?.phone || "—"}
+      </a>
+    </div>
+
+  </div>
+</div>
       </div>
 
     </div>
