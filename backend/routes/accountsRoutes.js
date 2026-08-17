@@ -6,6 +6,12 @@ const router = express.Router();
 // =====================================================
 // GET ALL ACCOUNTS
 // =====================================================
+// =====================================================
+// GET ALL ACCOUNTS
+// =====================================================
+// =====================================================
+// GET ALL ACCOUNTS
+// =====================================================
 
 router.get("/", async (req, res) => {
   try {
@@ -26,9 +32,14 @@ router.get("/", async (req, res) => {
         ad.max_bucket,
         ad.bucket,
 
-        pi.due_date,
-        pi.due_amount,
-        pi.status_tag
+        -- เอา Due Date ล่าสุดของลูกค้า
+        (
+          SELECT pi.due_date
+          FROM payment_info pi
+          WHERE pi.customer_id = c.id
+          ORDER BY pi.due_date DESC NULLS LAST
+          LIMIT 1
+        ) AS due_date
 
       FROM customers c
 
@@ -37,9 +48,6 @@ router.get("/", async (req, res) => {
 
       LEFT JOIN account_details ad
         ON ad.customer_id = c.id
-
-      LEFT JOIN payment_info pi
-        ON pi.customer_id = c.id
 
       ORDER BY c.id ASC
     `);
@@ -60,8 +68,6 @@ router.get("/", async (req, res) => {
     });
   }
 });
-
-
 // =====================================================
 // GET FULL ACCOUNT BY CUSTOMER NO
 // =====================================================
