@@ -1,5 +1,14 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
+
+import {
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+
 import {
   fetchAccount,
   addNote,
@@ -7,7 +16,9 @@ import {
   deleteNote,
   updatePayment,
 } from "../api";
+
 import Sidebar from "../components/Sidebar";
+
 // =====================================================
 // FORMAT
 // =====================================================
@@ -21,82 +32,109 @@ const fmt = (n) =>
       });
 
 const fmtDate = (d) =>
-  d ? new Date(d).toLocaleDateString("th-TH") : "—";
+  d
+    ? new Date(d).toLocaleDateString("th-TH")
+    : "—";
 
 // =====================================================
-// SIDEBAR
+// COMMON CLASS
 // =====================================================
 
+const inputClass =
+  "h-9 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+
+const selectClass =
+  "h-9 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+
+const panelClass =
+  "rounded-xl border border-gray-200 bg-white p-5 shadow-sm";
 
 // =====================================================
 // CUSTOMER INFO
 // =====================================================
 
-function CustomerInfo({ customer, phones, address }) {
+function CustomerInfo({
+  customer,
+  phones,
+  address,
+}) {
   return (
-    <div className="panel">
-      <h4>Customer Information</h4>
+    <div className={panelClass}>
+      <h4 className="mb-5 text-base font-bold text-gray-800">
+        Customer Information
+      </h4>
 
-      <div className="info-grid">
-
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <div>
-          <div className="field-label">NAME</div>
-          <div className="field-value">
-            {customer.name}
+          <div className="mb-1 text-xs font-medium text-gray-500">
+            NAME
+          </div>
+
+          <div className="text-sm font-semibold text-gray-800">
+            {customer.name || "—"}
           </div>
         </div>
 
         <div>
-          <div className="field-label">IDCard</div>
-          <div className="field-value">
-            {customer.id_card}
+          <div className="mb-1 text-xs font-medium text-gray-500">
+            IDCard
+          </div>
+
+          <div className="text-sm text-gray-800">
+            {customer.id_card || "—"}
           </div>
         </div>
 
         <div>
-          <div className="field-label">BirthDate</div>
-          <div className="field-value">
+          <div className="mb-1 text-xs font-medium text-gray-500">
+            BirthDate
+          </div>
+
+          <div className="text-sm text-gray-800">
             {fmtDate(customer.birth_date)}
           </div>
         </div>
 
         <div>
-          <div className="field-label">Occupation</div>
-          <div className="field-value">
-            {customer.occupation}
+          <div className="mb-1 text-xs font-medium text-gray-500">
+            Occupation
+          </div>
+
+          <div className="text-sm text-gray-800">
+            {customer.occupation || "—"}
           </div>
         </div>
 
         <div>
-          <div className="field-label">Position</div>
-          <div className="field-value">
-            {customer.position}
+          <div className="mb-1 text-xs font-medium text-gray-500">
+            Position
+          </div>
+
+          <div className="text-sm text-gray-800">
+            {customer.position || "—"}
           </div>
         </div>
-
       </div>
 
-      <div className="contact-grid">
-
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {phones.map((p) => (
           <div
-            className="contact-item"
             key={p.label}
+            className="rounded-lg bg-gray-50 px-4 py-3"
           >
-            <div className="lbl">
+            <div className="text-xs font-medium text-gray-500">
               {p.label}
             </div>
 
-            <div className="val">
-              {p.number}
+            <div className="mt-1 text-sm font-semibold text-gray-800">
+              {p.number || "—"}
             </div>
           </div>
         ))}
-
       </div>
 
-      <div className="address-row">
-        📍 {address}
+      <div className="mt-4 rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-700">
+        📍 {address || "—"}
       </div>
     </div>
   );
@@ -106,56 +144,68 @@ function CustomerInfo({ customer, phones, address }) {
 // BALANCES
 // =====================================================
 
-function Balances({ balances, acctMark }) {
+function Balances({
+  balances,
+  acctMark,
+}) {
   if (!balances) return null;
 
   return (
-    <div className="panel">
+    <div className={panelClass}>
+      <h4 className="mb-5 text-base font-bold text-gray-800">
+        Account Balances
+      </h4>
 
-      <h4>Account Balances</h4>
+      <div className="overflow-x-auto rounded-lg border border-gray-200">
+        <table className="min-w-full text-sm">
+          <thead className="bg-gray-50">
+            <tr className="border-b border-gray-200">
+              <th className="px-4 py-3 text-left font-semibold text-gray-600">
+                ACCTMark
+              </th>
 
-      <div className="table-wrap">
+              <th className="px-4 py-3 text-right font-semibold text-gray-600">
+                PrinBal
+              </th>
 
-        <table className="balances-table">
+              <th className="px-4 py-3 text-right font-semibold text-gray-600">
+                OSbal
+              </th>
 
-          <thead>
-            <tr>
-              <th>ACCTMark</th>
-              <th>PrinBal</th>
-              <th>OSbal</th>
-              <th>OSbalCust</th>
-              <th>OVDamt</th>
+              <th className="px-4 py-3 text-right font-semibold text-gray-600">
+                OSbalCust
+              </th>
+
+              <th className="px-4 py-3 text-right font-semibold text-gray-600">
+                OVDamt
+              </th>
             </tr>
           </thead>
 
           <tbody>
             <tr>
-
-              <td>
+              <td className="px-4 py-3 font-medium text-gray-800">
                 ▷ {acctMark}
               </td>
 
-              <td>
+              <td className="px-4 py-3 text-right text-gray-700">
                 {fmt(balances.prin_bal)}
               </td>
 
-              <td>
+              <td className="px-4 py-3 text-right text-gray-700">
                 {fmt(balances.os_bal)}
               </td>
 
-              <td>
+              <td className="px-4 py-3 text-right text-gray-700">
                 {fmt(balances.os_bal_cust)}
               </td>
 
-              <td className="accent">
+              <td className="px-4 py-3 text-right font-bold text-red-600">
                 {fmt(balances.ovd_amt)}
               </td>
-
             </tr>
           </tbody>
-
         </table>
-
       </div>
     </div>
   );
@@ -244,70 +294,72 @@ function AccountDetails({
     ["IntNotpost", d.int_notpod],
   ];
 
-  const cols = [col1, col2, col3, col4];
+  const cols = [
+    col1,
+    col2,
+    col3,
+    col4,
+  ];
 
   return (
-    <div className="panel">
+    <div className={panelClass}>
+      <h4 className="mb-5 text-base font-bold text-gray-800">
+        Account Details
+      </h4>
 
-      <h4>Account Details</h4>
-
-      <div className="account-details-grid">
-
+      <div className="grid grid-cols-1 gap-x-6 gap-y-2 md:grid-cols-2 xl:grid-cols-4">
         {cols.map((col, ci) => (
-          <div
-            className="ad-col"
-            key={ci}
-          >
-
+          <div key={ci}>
             {col.map(([label, val]) => (
               <div
-                className="ad-row"
                 key={label}
+                className="grid grid-cols-[120px_1fr] gap-2 border-b border-gray-100 py-2"
               >
-
-                <div className="field-label">
+                <div className="text-xs font-medium text-gray-500">
                   {label}:
                 </div>
 
-                <div className="field-value">
+                <div className="break-words text-xs text-gray-800">
                   {val === null ||
                   val === undefined ||
                   val === ""
                     ? "—"
                     : val}
                 </div>
-
               </div>
             ))}
-
           </div>
         ))}
-
       </div>
     </div>
   );
 }
+
 // =====================================================
 // COLLECTION NOTES
 // =====================================================
 
-function CollectionNotes({ notes, onAdd, onUpdate, onDelete }) {
+function CollectionNotes({
+  notes,
+  onAdd,
+  onUpdate,
+  onDelete,
+}) {
   const [draft, setDraft] = useState({
-  action_code_1: "",
-  action_code_2: "",
-  note_type: "Mobile",
-  telephone: "",
-  note: "",
-  created_at: "",
-});
+    action_code_1: "",
+    action_code_2: "",
+    note_type: "Mobile",
+    telephone: "",
+    note: "",
+    created_at: "",
+  });
 
   const [saving, setSaving] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [editData, setEditData] = useState({});
+  const [editingId, setEditingId] =
+    useState(null);
 
-  // ===================================================
-  // PARSE ACTION CODE
-  // ===================================================
+  const [editData, setEditData] =
+    useState({});
 
   const parseActionCode = (value) => {
     if (!value) {
@@ -327,76 +379,80 @@ function CollectionNotes({ notes, onAdd, onUpdate, onDelete }) {
     };
   };
 
-  // ===================================================
-  // FORMAT DATETIME FOR INPUT
-  // ===================================================
-
   const toDateTimeLocal = (value) => {
     if (!value) return "";
 
     const d = new Date(value);
 
-    if (Number.isNaN(d.getTime())) return "";
+    if (Number.isNaN(d.getTime())) {
+      return "";
+    }
 
     const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    const hour = String(d.getHours()).padStart(2, "0");
-    const minute = String(d.getMinutes()).padStart(2, "0");
+
+    const month = String(
+      d.getMonth() + 1
+    ).padStart(2, "0");
+
+    const day = String(
+      d.getDate()
+    ).padStart(2, "0");
+
+    const hour = String(
+      d.getHours()
+    ).padStart(2, "0");
+
+    const minute = String(
+      d.getMinutes()
+    ).padStart(2, "0");
 
     return `${year}-${month}-${day}T${hour}:${minute}`;
   };
 
-  // ===================================================
-  // START EDIT
-  // ===================================================
-
   const startEdit = (n) => {
-    const action = parseActionCode(n.action_code);
+    const action = parseActionCode(
+      n.action_code
+    );
 
     setEditingId(n.id);
 
     setEditData({
       action_code_1: action.first,
       action_code_2: action.second,
-      note_type: n.note_type || "Mobile",
+      note_type:
+        n.note_type || "Mobile",
       telephone: n.telephone || "",
       note: n.note || "",
-      created_at: toDateTimeLocal(n.created_at),
+      created_at: toDateTimeLocal(
+        n.created_at
+      ),
     });
   };
-
-  // ===================================================
-  // CANCEL EDIT
-  // ===================================================
 
   const cancelEdit = () => {
     setEditingId(null);
     setEditData({});
   };
-const handleDelete = async (noteId) => {
-  try {
-    setSaving(true);
 
-    await onDelete(noteId);
+  const handleDelete = async (noteId) => {
+    try {
+      setSaving(true);
 
-    // ถ้ากำลังแก้รายการนี้อยู่ ให้ยกเลิก edit
-    if (editingId === noteId) {
-      setEditingId(null);
-      setEditData({});
+      await onDelete(noteId);
+
+      if (editingId === noteId) {
+        setEditingId(null);
+        setEditData({});
+      }
+    } catch (error) {
+      alert(
+        error.message ||
+          "ลบข้อมูลไม่สำเร็จ"
+      );
+    } finally {
+      setSaving(false);
     }
-
-  } catch (error) {
-    alert(
-      error.message || "ลบข้อมูลไม่สำเร็จ"
-    );
-  } finally {
-    setSaving(false);
-  }
-};
-  // ===================================================
-  // UPDATE OLD NOTE
-  // ===================================================
+  };
 
   const saveEdit = async () => {
     if (!editingId) return;
@@ -404,34 +460,35 @@ const handleDelete = async (noteId) => {
     try {
       setSaving(true);
 
-      const actionCode = editData.action_code_1
-        ? `${editData.action_code_1}${
-            editData.action_code_2
-              ? ` | ${editData.action_code_2}`
-              : ""
-          }`
-        : editData.action_code_2;
+      const actionCode =
+        editData.action_code_1
+          ? `${editData.action_code_1}${
+              editData.action_code_2
+                ? ` | ${editData.action_code_2}`
+                : ""
+            }`
+          : editData.action_code_2;
 
       await onUpdate(editingId, {
         action_code: actionCode,
         note_type: editData.note_type,
         telephone: editData.telephone,
         note: editData.note,
-        created_at: editData.created_at,
+        created_at:
+          editData.created_at,
       });
 
       setEditingId(null);
       setEditData({});
     } catch (error) {
-      alert(error.message || "แก้ไขข้อมูลไม่สำเร็จ");
+      alert(
+        error.message ||
+          "แก้ไขข้อมูลไม่สำเร็จ"
+      );
     } finally {
       setSaving(false);
     }
   };
-
-  // ===================================================
-  // ADD NEW NOTE
-  // ===================================================
 
   const submit = async () => {
     if (!draft.note.trim()) {
@@ -442,425 +499,306 @@ const handleDelete = async (noteId) => {
     try {
       setSaving(true);
 
+      const actionCode =
+        draft.action_code_1
+          ? `${draft.action_code_1}${
+              draft.action_code_2
+                ? ` | ${draft.action_code_2}`
+                : ""
+            }`
+          : draft.action_code_2;
+
       await onAdd({
-  action_code: draft.action_code_1
-    ? `${draft.action_code_1}${
-        draft.action_code_2
-          ? ` | ${draft.action_code_2}`
-          : ""
-      }`
-    : draft.action_code_2,
+        action_code: actionCode,
+        note_type: draft.note_type,
+        telephone: draft.telephone,
+        note: draft.note,
+        created_at:
+          draft.created_at,
+      });
 
-  note_type: draft.note_type,
-  telephone: draft.telephone,
-  note: draft.note,
-
-  created_at: draft.created_at,
-});
-
-    setDraft({
-  action_code_1: "",
-  action_code_2: "",
-  note_type: "Mobile",
-  telephone: "",
-  note: "",
-  created_at: "",
-});
+      setDraft({
+        action_code_1: "",
+        action_code_2: "",
+        note_type: "Mobile",
+        telephone: "",
+        note: "",
+        created_at: "",
+      });
     } catch (error) {
-      alert(error.message || "เพิ่มข้อมูลไม่สำเร็จ");
+      alert(
+        error.message ||
+          "เพิ่มข้อมูลไม่สำเร็จ"
+      );
     } finally {
       setSaving(false);
     }
   };
 
+  const ActionSelect = ({
+    value,
+    onChange,
+    second = false,
+  }) => (
+    <select
+      value={value}
+      onChange={onChange}
+      className={selectClass}
+    >
+      <option value="">—</option>
+
+      {!second ? (
+        <>
+          <option value="NOA">NOA</option>
+          <option value="OC">OC</option>
+        </>
+      ) : (
+        <>
+          <option value="OC">OC</option>
+          <option value="NOA">NOA</option>
+        </>
+      )}
+    </select>
+  );
+
+  const PhoneTypeSelect = ({
+    value,
+    onChange,
+  }) => (
+    <select
+      value={value || "Mobile"}
+      onChange={onChange}
+      className={selectClass}
+    >
+      <option value="Mobile">
+        Mobile
+      </option>
+
+      <option value="Phone">
+        Phone
+      </option>
+
+      <option value="Home">
+        Home
+      </option>
+
+      <option value="Office">
+        Office
+      </option>
+    </select>
+  );
+
   return (
-    <div className="tabs-panel">
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
-      {/* =================================================
-          TABS
-      ================================================= */}
+      {/* TABS */}
 
-      <div className="tabs-header">
-        <div className="tabs-list">
-
-          <div className="tab-link active">
+      <div className="border-b border-gray-200 bg-gray-50">
+        <div className="flex overflow-x-auto">
+          <div className="border-b-2 border-blue-600 bg-white px-5 py-3 text-sm font-semibold text-blue-600">
             Collection_Note
           </div>
 
-          <div className="tab-link">
+          <div className="px-5 py-3 text-sm text-gray-500">
             ByBucket
           </div>
 
-          <div className="tab-link">
+          <div className="px-5 py-3 text-sm text-gray-500">
             Stickynote
           </div>
 
-          <div className="tab-link">
+          <div className="px-5 py-3 text-sm text-gray-500">
             TDR-operation-phone
           </div>
-
         </div>
       </div>
 
+      {/* TABLE */}
 
-      {/* =================================================
-          TABLE
-      ================================================= */}
-
-      <div className="table-wrap">
-
-        <table className="note-table">
-
-          <thead>
-            <tr>
-
-              <th>
+      <div className="overflow-x-auto">
+        <table className="min-w-[1000px] w-full text-sm">
+          <thead className="bg-gray-50">
+            <tr className="border-b border-gray-200">
+              <th className="px-4 py-3 text-left font-semibold text-gray-600">
                 DateTime
               </th>
 
-              <th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-600">
                 Action_Code
               </th>
 
-              <th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-600">
                 Telephone number
               </th>
 
-              <th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-600">
                 Collection_Note
               </th>
 
-              <th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-600">
                 จัดการ
               </th>
-
             </tr>
           </thead>
 
-
-          <tbody>
-
-            {/* =================================================
-                OLD DATA
-            ================================================= */}
+          <tbody className="divide-y divide-gray-100">
 
             {notes.map((n) => {
-
               const isEditing =
                 editingId === n.id;
 
               const action =
-                parseActionCode(n.action_code);
+                parseActionCode(
+                  n.action_code
+                );
 
               return (
-                <tr key={n.id}>
+                <tr
+                  key={n.id}
+                  className="align-middle hover:bg-gray-50"
+                >
 
-                {/* =================================================
-    DATE TIME
-================================================= */}
+                  {/* DATE */}
 
-<td>
-
-  {isEditing ? (
-
-    <input
-      type="datetime-local"
-      className="edit-date-input"
-      value={editData.created_at || ""}
-      onChange={(e) =>
-        setEditData({
-          ...editData,
-          created_at: e.target.value,
-        })
-      }
-      onClick={(e) => {
-        if (e.target.showPicker) {
-          e.target.showPicker();
-        }
-      }}
-    />
-
-  ) : (
-
-   <span
-  className="editable-cell"
-  onClick={() => startEdit(n)}
->
-  {new Date(
-    n.created_at
-  ).toLocaleString("th-TH")}
-</span>
-
-  )}
-
-</td>
-
-                  {/* =================================================
-                      ACTION CODE
-                  ================================================= */}
-
-                  <td>
-
+                  <td className="px-4 py-3">
                     {isEditing ? (
-
-                      <div className="action-code-group">
-
-                        <select
-                          value={
-                            editData.action_code_1
-                          }
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              action_code_1:
-                                e.target.value,
-                            })
-                          }
-                        >
-
-                          <option value="">
-                            —
-                          </option>
-
-                          <option value="NOA">
-                            NOA
-                          </option>
-
-                          <option value="OC">
-                            OC
-                          </option>
-
-                        </select>
-
-
-                        <select
-                          value={
-                            editData.action_code_2
-                          }
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              action_code_2:
-                                e.target.value,
-                            })
-                          }
-                        >
-
-                          <option value="">
-                            —
-                          </option>
-
-                          <option value="OC">
-                            OC
-                          </option>
-
-                          <option value="NOA">
-                            NOA
-                          </option>
-
-                        </select>
-
-                      </div>
-
+                      <input
+                        type="datetime-local"
+                        className={inputClass}
+                        value={
+                          editData.created_at ||
+                          ""
+                        }
+                        onChange={(e) =>
+                          setEditData({
+                            ...editData,
+                            created_at:
+                              e.target.value,
+                          })
+                        }
+                      />
                     ) : (
-
-                      <div className="action-code-group">
-
-                        <select
-                          value={action.first}
-                          onChange={(e) => {
-                            startEdit(n);
-
-                            setEditData((prev) => ({
-                              ...prev,
-                              action_code_1:
-                                e.target.value,
-                              action_code_2:
-                                action.second,
-                            }));
-                          }}
-                        >
-
-                          <option value="">
-                            —
-                          </option>
-
-                          <option value="NOA">
-                            NOA
-                          </option>
-
-                          <option value="OC">
-                            OC
-                          </option>
-
-                        </select>
-
-
-                        <select
-                          value={action.second}
-                          onChange={(e) => {
-                            startEdit(n);
-
-                            setEditData((prev) => ({
-                              ...prev,
-                              action_code_1:
-                                action.first,
-                              action_code_2:
-                                e.target.value,
-                            }));
-                          }}
-                        >
-
-                          <option value="">
-                            —
-                          </option>
-
-                          <option value="OC">
-                            OC
-                          </option>
-
-                          <option value="NOA">
-                            NOA
-                          </option>
-
-                        </select>
-
-                      </div>
-
+                      <button
+                        type="button"
+                        className="text-left text-xs text-gray-700 hover:text-blue-600"
+                        onClick={() =>
+                          startEdit(n)
+                        }
+                      >
+                        {new Date(
+                          n.created_at
+                        ).toLocaleString(
+                          "th-TH"
+                        )}
+                      </button>
                     )}
-
                   </td>
 
+                  {/* ACTION CODE */}
 
-                  {/* =================================================
-                      TELEPHONE
-                  ================================================= */}
-
-                  <td>
-
-                    {isEditing ? (
-
-                      <div className="telephone-group">
-
-                        <select
-                          value={
-                            editData.note_type ||
-                            "Mobile"
-                          }
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              note_type:
-                                e.target.value,
-                            })
-                          }
-                        >
-
-                          <option value="Mobile">
-                            Mobile
-                          </option>
-
-                          <option value="Phone">
-                            Phone
-                          </option>
-
-                          <option value="Home">
-                            Home
-                          </option>
-
-                          <option value="Office">
-                            Office
-                          </option>
-
-                        </select>
-
-
-                        <input
-                          value={
-                            editData.telephone
-                          }
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              telephone:
-                                e.target.value,
-                            })
-                          }
-                        />
-
-                      </div>
-
-                    ) : (
-
-                      <div className="telephone-group">
-
-                        <select
-                          value={
-                            n.note_type ||
-                            "Mobile"
-                          }
-                          onChange={(e) => {
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
+                      <ActionSelect
+                        value={
+                          isEditing
+                            ? editData.action_code_1
+                            : action.first
+                        }
+                        onChange={(e) => {
+                          if (!isEditing) {
                             startEdit(n);
-
-                            setEditData((prev) => ({
-                              ...prev,
-                              note_type:
-                                e.target.value,
-                            }));
-                          }}
-                        >
-
-                          <option value="Mobile">
-                            Mobile
-                          </option>
-
-                          <option value="Phone">
-                            Phone
-                          </option>
-
-                          <option value="Home">
-                            Home
-                          </option>
-
-                          <option value="Office">
-                            Office
-                          </option>
-
-                        </select>
-
-
-                        <input
-                          value={
-                            n.telephone || ""
                           }
-                          onChange={(e) => {
+
+                          setEditData((prev) => ({
+                            ...prev,
+                            action_code_1:
+                              e.target.value,
+                            action_code_2:
+                              isEditing
+                                ? prev.action_code_2
+                                : action.second,
+                          }));
+                        }}
+                      />
+
+                      <ActionSelect
+                        second
+                        value={
+                          isEditing
+                            ? editData.action_code_2
+                            : action.second
+                        }
+                        onChange={(e) => {
+                          if (!isEditing) {
                             startEdit(n);
+                          }
 
-                            setEditData((prev) => ({
-                              ...prev,
-                              telephone:
-                                e.target.value,
-                            }));
-                          }}
-                        />
-
-                      </div>
-
-                    )}
-
+                          setEditData((prev) => ({
+                            ...prev,
+                            action_code_1:
+                              isEditing
+                                ? prev.action_code_1
+                                : action.first,
+                            action_code_2:
+                              e.target.value,
+                          }));
+                        }}
+                      />
+                    </div>
                   </td>
 
+                  {/* TELEPHONE */}
 
-                  {/* =================================================
-                      COLLECTION NOTE
-                  ================================================= */}
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
+                      <PhoneTypeSelect
+                        value={
+                          isEditing
+                            ? editData.note_type
+                            : n.note_type
+                        }
+                        onChange={(e) => {
+                          if (!isEditing) {
+                            startEdit(n);
+                          }
 
-                  <td>
-
-                    {isEditing ? (
+                          setEditData((prev) => ({
+                            ...prev,
+                            note_type:
+                              e.target.value,
+                          }));
+                        }}
+                      />
 
                       <input
-                        className="note-edit-input"
+                        className={inputClass}
+                        value={
+                          isEditing
+                            ? editData.telephone
+                            : n.telephone || ""
+                        }
+                        placeholder="เบอร์โทร"
+                        onChange={(e) => {
+                          if (!isEditing) {
+                            startEdit(n);
+                          }
+
+                          setEditData((prev) => ({
+                            ...prev,
+                            telephone:
+                              e.target.value,
+                          }));
+                        }}
+                      />
+                    </div>
+                  </td>
+
+                  {/* NOTE */}
+
+                  <td className="px-4 py-3">
+                    {isEditing ? (
+                      <input
+                        className={inputClass}
                         value={
                           editData.note || ""
                         }
@@ -871,118 +809,112 @@ const handleDelete = async (noteId) => {
                           })
                         }
                       />
-
                     ) : (
-
                       <input
-                        className="note-view-input"
-                        value={n.note || ""}
+                        className={`${inputClass} bg-gray-50`}
+                        value={
+                          n.note || ""
+                        }
                         readOnly
                         onDoubleClick={() =>
                           startEdit(n)
                         }
                       />
-
                     )}
-
                   </td>
 
+                  {/* ACTION */}
 
-                  {/* =================================================
-                      ACTION BUTTON
-                  ================================================= */}
-{/* =================================================
-    ACTION BUTTON
-================================================= */}
+                  <td className="px-4 py-3">
+                    {isEditing ? (
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          disabled={saving}
+                          onClick={saveEdit}
+                          className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                        >
+                          {saving
+                            ? "กำลังบันทึก..."
+                            : "บันทึก"}
+                        </button>
 
-<td>
-  {isEditing ? (
-    <div className="edit-actions">
+                        <button
+                          type="button"
+                          disabled={saving}
+                          onClick={cancelEdit}
+                          className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+                        >
+                          ยกเลิก
+                        </button>
 
-      <button
-        type="button"
-        className="save-note-btn"
-        disabled={saving}
-        onClick={saveEdit}
-      >
-        {saving ? "กำลังบันทึก..." : "บันทึก"}
-      </button>
+                        <button
+                          type="button"
+                          disabled={saving}
+                          onClick={() =>
+                            handleDelete(n.id)
+                          }
+                          className="rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50"
+                        >
+                          ลบ
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            startEdit(n)
+                          }
+                          className="rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-600 hover:bg-blue-100"
+                        >
+                          แก้ไข
+                        </button>
 
-      <button
-        type="button"
-        className="cancel-note-btn"
-        disabled={saving}
-        onClick={cancelEdit}
-      >
-        ยกเลิก
-      </button>
-
-      <button
-        type="button"
-        className="delete-note-btn"
-        disabled={saving}
-        onClick={() => handleDelete(n.id)}
-      >
-        ลบ
-      </button>
-
-    </div>
-  ) : (
-    <div className="note-actions">
-
-      <button
-        type="button"
-        className="edit-note-btn"
-        onClick={() => startEdit(n)}
-      >
-        แก้ไข
-      </button>
-
-      <button
-        type="button"
-        className="delete-note-btn"
-        onClick={() => handleDelete(n.id)}
-      >
-        ลบ
-      </button>
-
-    </div>
-  )}
-</td>
-
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleDelete(n.id)
+                          }
+                          className="rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-100"
+                        >
+                          ลบ
+                        </button>
+                      </div>
+                    )}
+                  </td>
                 </tr>
               );
             })}
 
+            {/* NEW NOTE */}
 
-            {/* =================================================
-                NEW ROW
-            ================================================= */}
+            <tr className="bg-blue-50/40">
 
-            <tr className="new-note-row">
+              {/* DATE */}
 
-              <td>
-  <input
-  type="datetime-local"
-  className="edit-date-input"
-  value={draft.created_at || ""}
-  onChange={(e) =>
-    setDraft({
-      ...draft,
-      created_at: e.target.value,
-    })
-  }
-/>
-</td>
-
+              <td className="px-4 py-3">
+                <input
+                  type="datetime-local"
+                  className={inputClass}
+                  value={
+                    draft.created_at || ""
+                  }
+                  onChange={(e) =>
+                    setDraft({
+                      ...draft,
+                      created_at:
+                        e.target.value,
+                    })
+                  }
+                />
+              </td>
 
               {/* ACTION */}
 
-              <td>
-
-                <div className="action-code-group">
-
-                  <select
+              <td className="px-4 py-3">
+                <div className="flex gap-2">
+                  <ActionSelect
                     value={
                       draft.action_code_1
                     }
@@ -993,24 +925,10 @@ const handleDelete = async (noteId) => {
                           e.target.value,
                       })
                     }
-                  >
+                  />
 
-                    <option value="">
-                      —
-                    </option>
-
-                    <option value="NOA">
-                      NOA
-                    </option>
-
-                    <option value="OC">
-                      OC
-                    </option>
-
-                  </select>
-
-
-                  <select
+                  <ActionSelect
+                    second
                     value={
                       draft.action_code_2
                     }
@@ -1021,34 +939,15 @@ const handleDelete = async (noteId) => {
                           e.target.value,
                       })
                     }
-                  >
-
-                    <option value="">
-                      —
-                    </option>
-
-                    <option value="OC">
-                      OC
-                    </option>
-
-                    <option value="NOA">
-                      NOA
-                    </option>
-
-                  </select>
-
+                  />
                 </div>
-
               </td>
-
 
               {/* TELEPHONE */}
 
-              <td>
-
-                <div className="telephone-group">
-
-                  <select
+              <td className="px-4 py-3">
+                <div className="flex gap-2">
+                  <PhoneTypeSelect
                     value={draft.note_type}
                     onChange={(e) =>
                       setDraft({
@@ -1057,28 +956,10 @@ const handleDelete = async (noteId) => {
                           e.target.value,
                       })
                     }
-                  >
-
-                    <option value="Mobile">
-                      Mobile
-                    </option>
-
-                    <option value="Phone">
-                      Phone
-                    </option>
-
-                    <option value="Home">
-                      Home
-                    </option>
-
-                    <option value="Office">
-                      Office
-                    </option>
-
-                  </select>
-
+                  />
 
                   <input
+                    className={inputClass}
                     value={
                       draft.telephone
                     }
@@ -1091,18 +972,14 @@ const handleDelete = async (noteId) => {
                       })
                     }
                   />
-
                 </div>
-
               </td>
-
 
               {/* NOTE */}
 
-              <td>
-
+              <td className="px-4 py-3">
                 <input
-                  className="note-input"
+                  className={inputClass}
                   placeholder="พิมพ์ Collection Note..."
                   value={draft.note}
                   onChange={(e) =>
@@ -1112,72 +989,85 @@ const handleDelete = async (noteId) => {
                     })
                   }
                 />
-
               </td>
-
 
               {/* ADD */}
 
-              <td>
-
+              <td className="px-4 py-3">
                 <button
-                  className="add-note-btn"
+                  type="button"
                   disabled={saving}
                   onClick={submit}
+                  className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {saving
                     ? "กำลังบันทึก..."
                     : "เพิ่ม"}
                 </button>
-
               </td>
-
             </tr>
-
           </tbody>
-
         </table>
-
       </div>
-
     </div>
   );
 }
-// =====================================================
-// PAYMENT PANEL
-// =====================================================
+
 // =====================================================
 // PAYMENT PANEL
 // =====================================================
 
-function PaymentPanel({ payment, custNo, onUpdate }) {
-  const [editData, setEditData] = useState({
-    call_result: payment?.call_result || "",
-    due_date: payment?.due_date || "",
-    due_amount: payment?.due_amount || "",
-    forecast_pct: payment?.forecast_pct || "",
-    debtor_type: payment?.debtor_type || "",
-    contact_date: payment?.contact_date || "",
-    last_phone: payment?.last_phone || "",
-  });
+function PaymentPanel({
+  payment,
+  custNo,
+  onUpdate,
+}) {
+  const [editData, setEditData] =
+    useState({
+      call_result:
+        payment?.call_result || "",
+      due_date:
+        payment?.due_date || "",
+      due_amount:
+        payment?.due_amount || "",
+      forecast_pct:
+        payment?.forecast_pct || "",
+      debtor_type:
+        payment?.debtor_type || "",
+      contact_date:
+        payment?.contact_date || "",
+      last_phone:
+        payment?.last_phone || "",
+    });
 
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] =
+    useState(false);
 
   useEffect(() => {
     if (!payment) return;
 
     setEditData({
-      call_result: payment.call_result || "",
-      due_date: payment.due_date || "",
-      due_amount: payment.due_amount || "",
-      forecast_pct: payment.forecast_pct || "",
-      debtor_type: payment.debtor_type || "",
-      contact_date: payment.contact_date || "",
-      last_phone: payment.last_phone || "",
+      call_result:
+        payment.call_result || "",
+      due_date:
+        payment.due_date || "",
+      due_amount:
+        payment.due_amount || "",
+      forecast_pct:
+        payment.forecast_pct || "",
+      debtor_type:
+        payment.debtor_type || "",
+      contact_date:
+        payment.contact_date || "",
+      last_phone:
+        payment.last_phone || "",
     });
   }, [payment]);
 
-  const handleChange = (field, value) => {
+  const handleChange = (
+    field,
+    value
+  ) => {
     setEditData((prev) => ({
       ...prev,
       [field]: value,
@@ -1190,11 +1080,13 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
 
       await onUpdate(editData);
 
-      alert("บันทึกข้อมูลการชำระสำเร็จ");
+      alert(
+        "บันทึกข้อมูลการชำระสำเร็จ"
+      );
     } catch (error) {
       alert(
         error.message ||
-        "บันทึกข้อมูลการชำระไม่สำเร็จ"
+          "บันทึกข้อมูลการชำระไม่สำเร็จ"
       );
     } finally {
       setSaving(false);
@@ -1203,8 +1095,8 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
 
   if (!payment) {
     return (
-      <div className="pay-panel">
-        <div className="pay-empty">
+      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="py-10 text-center text-sm text-gray-500">
           ไม่มีข้อมูลการชำระ
         </div>
       </div>
@@ -1212,59 +1104,53 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
   }
 
   return (
-    <div className="pay-panel">
+    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
 
-      {/* =================================================
-          HEADER
-      ================================================= */}
+      {/* HEADER */}
 
-      <div className="pay-header">
-
+      <div className="mb-6 flex items-center justify-between border-b border-gray-100 pb-5">
         <div>
-          <div className="pay-title">
+          <div className="text-lg font-bold text-gray-800">
             ข้อมูลการชำระ
           </div>
 
-          <div className="pay-subtitle">
+          <div className="mt-1 text-xs text-gray-500">
             Payment Information
           </div>
         </div>
 
-        <div className="pay-account-badge">
+        <div className="rounded-full bg-blue-50 px-4 py-2 text-xs font-bold text-blue-600">
           {custNo}
         </div>
-
       </div>
 
+      {/* PAYMENT FORM */}
 
-      {/* =================================================
-          BASIC PAYMENT INFO
-      ================================================= */}
-
-      <div className="pay-section">
-
-        <div className="pay-section-title">
+      <div className="mb-6">
+        <div className="mb-4 text-sm font-bold text-gray-700">
           ข้อมูลการติดตาม
         </div>
 
-        <div className="pay-form-grid">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
           {/* CALL RESULT */}
 
-          <div className="pay-field">
-
-            <label>
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-gray-600">
               ผลการ Call
             </label>
 
             <select
-              value={editData.call_result}
+              value={
+                editData.call_result
+              }
               onChange={(e) =>
                 handleChange(
                   "call_result",
                   e.target.value
                 )
               }
+              className={inputClass}
             >
               <option value="">
                 — เลือกผลการ Call —
@@ -1286,26 +1172,26 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
                 ปิดเครื่อง
               </option>
             </select>
-
           </div>
-
 
           {/* DEBTOR TYPE */}
 
-          <div className="pay-field">
-
-            <label>
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-gray-600">
               ประเภทลูกหนี้
             </label>
 
             <select
-              value={editData.debtor_type}
+              value={
+                editData.debtor_type
+              }
               onChange={(e) =>
                 handleChange(
                   "debtor_type",
                   e.target.value
                 )
               }
+              className={inputClass}
             >
               <option value="">
                 — เลือกประเภท —
@@ -1326,17 +1212,13 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
               <option value="Normal">
                 Normal
               </option>
-
             </select>
-
           </div>
-
 
           {/* DUE DATE */}
 
-          <div className="pay-field">
-
-            <label>
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-gray-600">
               วันครบกำหนด
             </label>
 
@@ -1355,22 +1237,21 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
                   e.target.value
                 )
               }
+              className={inputClass}
             />
-
           </div>
-
 
           {/* DUE AMOUNT */}
 
-          <div className="pay-field">
-
-            <label>
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-gray-600">
               ยอดครบกำหนด
             </label>
 
-            <div className="money-input">
-
-              <span>฿</span>
+            <div className="flex h-9 overflow-hidden rounded-lg border border-gray-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+              <span className="flex w-9 items-center justify-center bg-gray-50 text-sm font-semibold text-gray-500">
+                ฿
+              </span>
 
               <input
                 type="number"
@@ -1384,18 +1265,15 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
                     e.target.value
                   )
                 }
+                className="w-full border-0 px-3 text-sm outline-none"
               />
-
             </div>
-
           </div>
-
 
           {/* FORECAST */}
 
-          <div className="pay-field">
-
-            <label>
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-gray-600">
               % Forecast
             </label>
 
@@ -1409,34 +1287,39 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
                   e.target.value
                 )
               }
+              className={inputClass}
             >
-
               <option value="">
                 — เลือก —
               </option>
 
-              <option value="0">0%</option>
-              <option value="10">10%</option>
-              <option value="20">20%</option>
-              <option value="30">30%</option>
-              <option value="40">40%</option>
-              <option value="50">50%</option>
-              <option value="60">60%</option>
-              <option value="70">70%</option>
-              <option value="80">80%</option>
-              <option value="90">90%</option>
-              <option value="100">100%</option>
-
+              {[
+                0,
+                10,
+                20,
+                30,
+                40,
+                50,
+                60,
+                70,
+                80,
+                90,
+                100,
+              ].map((x) => (
+                <option
+                  key={x}
+                  value={x}
+                >
+                  {x}%
+                </option>
+              ))}
             </select>
-
           </div>
-
 
           {/* CONTACT DATE */}
 
-          <div className="pay-field">
-
-            <label>
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-gray-600">
               วันที่ติดต่อ
             </label>
 
@@ -1455,34 +1338,28 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
                   e.target.value
                 )
               }
+              className={inputClass}
             />
-
           </div>
-
         </div>
-
       </div>
 
+      {/* CONTACT RESULT */}
 
-      {/* =================================================
-          CONTACT RESULT
-      ================================================= */}
-
-      <div className="pay-section">
-
-        <div className="pay-section-title">
+      <div className="mb-6">
+        <div className="mb-4 text-sm font-bold text-gray-700">
           ผลการติดต่อ
         </div>
 
-        <div className="action-grid">
+        <div className="grid grid-cols-2 gap-3">
 
           <button
             type="button"
-            className={`action-btn maroon ${
+            className={`rounded-xl border p-4 text-sm font-semibold transition ${
               editData.call_result ===
               "ไม่ใช่เบอร์ลูกค้า"
-                ? "selected"
-                : ""
+                ? "border-red-500 bg-red-100 text-red-700 ring-2 ring-red-200"
+                : "border-red-100 bg-red-50 text-red-600 hover:bg-red-100"
             }`}
             onClick={() =>
               handleChange(
@@ -1491,25 +1368,22 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
               )
             }
           >
-            <span className="action-icon">
+            <div className="mb-1 text-xl">
               ✕
-            </span>
+            </div>
 
-            <span>
-              ไม่ใช่
-              <br />
-              เบอร์ลูกค้า
-            </span>
+            ไม่ใช่
+            <br />
+            เบอร์ลูกค้า
           </button>
-
 
           <button
             type="button"
-            className={`action-btn red ${
+            className={`rounded-xl border p-4 text-sm font-semibold transition ${
               editData.call_result ===
               "ติดต่อไม่ได้"
-                ? "selected"
-                : ""
+                ? "border-red-600 bg-red-100 text-red-700 ring-2 ring-red-200"
+                : "border-red-100 bg-red-50 text-red-600 hover:bg-red-100"
             }`}
             onClick={() =>
               handleChange(
@@ -1518,25 +1392,22 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
               )
             }
           >
-            <span className="action-icon">
+            <div className="mb-1 text-xl">
               ☎
-            </span>
+            </div>
 
-            <span>
-              ติดต่อ
-              <br />
-              ไม่ได้
-            </span>
+            ติดต่อ
+            <br />
+            ไม่ได้
           </button>
-
 
           <button
             type="button"
-            className={`action-btn teal-dark ${
+            className={`rounded-xl border p-4 text-sm font-semibold transition ${
               editData.call_result ===
               "ปิดเครื่อง"
-                ? "selected"
-                : ""
+                ? "border-teal-600 bg-teal-100 text-teal-700 ring-2 ring-teal-200"
+                : "border-teal-100 bg-teal-50 text-teal-700 hover:bg-teal-100"
             }`}
             onClick={() =>
               handleChange(
@@ -1545,23 +1416,20 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
               )
             }
           >
-            <span className="action-icon">
+            <div className="mb-1 text-xl">
               ◉
-            </span>
+            </div>
 
-            <span>
-              ปิดเครื่อง
-            </span>
+            ปิดเครื่อง
           </button>
-
 
           <button
             type="button"
-            className={`action-btn amber ${
+            className={`rounded-xl border p-4 text-sm font-semibold transition ${
               editData.call_result ===
               "ไม่รับสาย"
-                ? "selected"
-                : ""
+                ? "border-amber-500 bg-amber-100 text-amber-700 ring-2 ring-amber-200"
+                : "border-amber-100 bg-amber-50 text-amber-700 hover:bg-amber-100"
             }`}
             onClick={() =>
               handleChange(
@@ -1570,66 +1438,57 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
               )
             }
           >
-            <span className="action-icon">
+            <div className="mb-1 text-xl">
               ☎
-            </span>
+            </div>
 
-            <span>
-              ไม่รับ
-              <br />
-              สาย
-            </span>
+            ไม่รับ
+            <br />
+            สาย
           </button>
-
         </div>
-
       </div>
 
+      {/* LAST PHONE */}
 
-      {/* =================================================
-          LAST PHONE
-      ================================================= */}
-<div className="last-phone-box">
+      <div className="mb-5">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          เบอร์โทรล่าสุด
+        </label>
 
-  <div className="last-phone-label">
-    เบอร์โทรล่าสุด
-  </div>
+        <div className="flex h-11 items-center overflow-hidden rounded-lg border border-gray-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100">
+          <span className="px-3 text-lg">
+            📞
+          </span>
 
-  <div className="last-phone-input-wrap">
-    <span className="last-phone-icon">
-      📞
-    </span>
+          <input
+            type="text"
+            value={
+              editData.last_phone || ""
+            }
+            placeholder="กรอกเบอร์โทรล่าสุด"
+            onChange={(e) =>
+              handleChange(
+                "last_phone",
+                e.target.value
+              )
+            }
+            className="h-full w-full border-0 pr-3 text-sm outline-none"
+          />
+        </div>
+      </div>
 
-    <input
-      type="text"
-      className="last-phone-input"
-      value={editData.last_phone || ""}
-      placeholder="กรอกเบอร์โทรล่าสุด"
-      onChange={(e) =>
-        handleChange(
-          "last_phone",
-          e.target.value
-        )
-      }
-    />
-  </div>
-
-</div>
-
-
-      {/* =================================================
-          SAVE
-      ================================================= */}
+      {/* SAVE */}
 
       <button
         type="button"
-        className="save-payment-btn"
         disabled={saving}
         onClick={handleSave}
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {saving ? (
           <>
-            <span className="save-spinner">
+            <span className="animate-spin">
               ⟳
             </span>
 
@@ -1638,12 +1497,10 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
         ) : (
           <>
             ✓
-            &nbsp;
             บันทึกข้อมูลการชำระ
           </>
         )}
       </button>
-
     </div>
   );
 }
@@ -1654,87 +1511,126 @@ function PaymentPanel({ payment, custNo, onUpdate }) {
 
 export default function AccountDetail() {
   const { custNo } = useParams();
-
+  const navigate = useNavigate();
 
   const user = JSON.parse(
     localStorage.getItem("user") || "null"
   );
 
-  const navigate = useNavigate();
+  const [data, setData] =
+    useState(null);
 
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
+  const [error, setError] =
+    useState(null);
+
   const [sidebarOpen, setSidebarOpen] =
     useState(false);
 
   // ===================================================
-  // LOAD ACCOUNT
+  // LOAD
   // ===================================================
 
-  const load = useCallback(async () => {
+  const load = useCallback(
+    async () => {
+      try {
+        setError(null);
 
-    try {
-      setError(null);
+        const d =
+          await fetchAccount(custNo);
 
-      const d = await fetchAccount(custNo);
-
-      setData(d);
-
-    } catch (e) {
-      setError(e.message);
-    }
-
-  }, [custNo]);
+        setData(d);
+      } catch (e) {
+        setError(e.message);
+      }
+    },
+    [custNo]
+  );
 
   useEffect(() => {
     load();
   }, [load]);
 
   // ===================================================
-  // ADD NOTE
+  // NOTE
   // ===================================================
 
-const handleAddNote = async (draft) => {
-  await addNote(custNo, draft);
-  await load();
-};
+  const handleAddNote = async (draft) => {
+    await addNote(
+      custNo,
+      draft
+    );
 
-const handleUpdateNote = async (noteId, data) => {
-  await updateNote(noteId, data);
-  await load();
-};
-const handleDeleteNote = async (noteId) => {
-  const confirmed = window.confirm(
-    "ต้องการลบ Collection Note นี้ใช่หรือไม่?"
-  );
+    await load();
+  };
 
-  if (!confirmed) return;
+  const handleUpdateNote = async (
+    noteId,
+    noteData
+  ) => {
+    await updateNote(
+      noteId,
+      noteData
+    );
 
-  await deleteNote(noteId);
-  await load();
-};
-const handleUpdatePayment = async (data) => {
-  await updatePayment(custNo, data);
-  await load();
-};
+    await load();
+  };
+
+  const handleDeleteNote = async (
+    noteId
+  ) => {
+    const confirmed =
+      window.confirm(
+        "ต้องการลบ Collection Note นี้ใช่หรือไม่?"
+      );
+
+    if (!confirmed) return;
+
+    await deleteNote(noteId);
+
+    await load();
+  };
+
+  // ===================================================
+  // PAYMENT
+  // ===================================================
+
+  const handleUpdatePayment =
+    async (paymentData) => {
+      await updatePayment(
+        custNo,
+        paymentData
+      );
+
+      await load();
+    };
+
   // ===================================================
   // ERROR
   // ===================================================
 
   if (error) {
     return (
-      <div className="state-msg">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
+        <div className="rounded-xl border border-red-200 bg-white p-8 text-center shadow-sm">
 
-        <p>
-          เชื่อมต่อ API ไม่ได้: {error}
-        </p>
+          <div className="mb-3 text-3xl">
+            ⚠️
+          </div>
 
-        <button
-          onClick={() => navigate("/accounts")}
-        >
-          ← กลับ Accounts
-        </button>
+          <p className="mb-5 text-sm text-red-600">
+            เชื่อมต่อ API ไม่ได้:{" "}
+            {error}
+          </p>
 
+          <button
+            onClick={() =>
+              navigate("/accounts")
+            }
+            className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+          >
+            ← กลับ Accounts
+          </button>
+        </div>
       </div>
     );
   }
@@ -1745,8 +1641,10 @@ const handleUpdatePayment = async (data) => {
 
   if (!data) {
     return (
-      <div className="state-msg">
-        กำลังโหลดข้อมูล…
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="text-sm text-gray-500">
+          กำลังโหลดข้อมูล…
+        </div>
       </div>
     );
   }
@@ -1769,9 +1667,11 @@ const handleUpdatePayment = async (data) => {
   // ===================================================
 
   return (
-    <div className="app">
+    <div className="min-h-screen bg-gray-100">
 
-      {/* SIDEBAR */}
+      {/* =================================================
+          SIDEBAR
+      ================================================= */}
 
       <Sidebar
         open={sidebarOpen}
@@ -1780,16 +1680,28 @@ const handleUpdatePayment = async (data) => {
         }
       />
 
-      <div className="main">
+      {/* =================================================
+          MAIN APP AREA
 
-        {/* TOPBAR */}
+          สำคัญ:
+          lg:ml-64 = เว้นพื้นที่ Sidebar 256px
+      ================================================= */}
 
-        <div className="topbar">
+      <div className="min-h-screen lg:ml-64">
 
-          <div className="topbar-left">
+        {/* =================================================
+            TOPBAR
+        ================================================= */}
+
+        <div className="sticky top-0 z-30 flex h-16 items-center border-b border-gray-200 bg-white px-4 shadow-sm">
+
+          <div className="flex items-center gap-3">
+
+            {/* MOBILE MENU */}
 
             <button
-              className="hamburger"
+              type="button"
+              className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 lg:hidden"
               onClick={() =>
                 setSidebarOpen(true)
               }
@@ -1797,97 +1709,112 @@ const handleUpdatePayment = async (data) => {
               ☰
             </button>
 
-            <span className="app-name">
+            <span className="text-lg font-bold text-gray-800">
               DebtCollect Pro
             </span>
 
-            <span className="pill">
+            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
               Queue
             </span>
-
           </div>
-
         </div>
 
-        {/* CONTENT */}
+        {/* =================================================
+            CONTENT
+        ================================================= */}
 
-        <div className="content">
+        <main className="mx-auto w-full max-w-[1800px] p-4 md:p-6">
 
           {/* CASE HEADER */}
 
-          <div className="case-header">
+          <div className="mb-4 flex flex-col justify-between gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm lg:flex-row lg:items-center">
 
             <div>
 
-              <div className="case-title">
-                K-Bank PRL (ข้อมูลทั้งหมด)
+              <div className="text-xl font-bold text-gray-800">
+                K-Bank PRL{" "}
+                <span className="text-gray-500">
+                  (ข้อมูลทั้งหมด)
+                </span>
               </div>
 
-              <div className="case-meta">
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-500">
 
-                Cusno:{" "}
-                <b>
-                  {customer.cust_no}
-                </b>
+                <span>
+                  Cusno:{" "}
+                  <b className="text-gray-800">
+                    {customer.cust_no}
+                  </b>
+                </span>
 
-                <span className="badge-acctmark-outline">
+                <span className="rounded-full border border-blue-300 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
                   ACCTMark{" "}
                   {customer.acct_mark}
                 </span>
-
               </div>
-
             </div>
 
-            <div className="case-badges">
+            <div className="flex flex-wrap gap-2">
 
-              <span className="badge-warn">
-                ⚠ NPL ลด
+              <span className="rounded-full bg-red-50 px-4 py-2 text-xs font-bold text-red-600">
+                ⚠ NPL ลด{" "}
                 {customer.npl_pct}%
               </span>
 
-              <span className="badge-acctmark-solid">
+              <span className="rounded-full bg-blue-600 px-4 py-2 text-xs font-bold text-white">
                 ACCTMark:{" "}
                 {customer.acct_mark}
               </span>
 
             </div>
-
           </div>
 
-          {/* BACK BUTTON */}
+          {/* BACK */}
 
           <button
-            className="back-btn"
+            type="button"
             onClick={() =>
               navigate("/accounts")
             }
+            className="mb-5 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm ring-1 ring-gray-200 transition hover:bg-gray-50 hover:text-blue-600"
           >
             ← Back to Accounts
           </button>
 
-          {/* MAIN GRID */}
+          {/* =================================================
+              MAIN GRID
+          ================================================= */}
 
-          <div className="grid">
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(380px,0.8fr)]">
 
-            <div>
+            {/* =================================================
+                LEFT
+            ================================================= */}
+
+            <div className="min-w-0 space-y-5">
 
               <AccountDetails
                 d={{
                   ...details,
                   ...balances,
                 }}
-                custNo={customer.cust_no}
+                custNo={
+                  customer.cust_no
+                }
                 acctMark={
                   customer.acct_mark
                 }
-                name={customer.name}
+                name={
+                  customer.name
+                }
               />
 
               <CustomerInfo
                 customer={customer}
                 phones={phones}
-                address={customer.address}
+                address={
+                  customer.address
+                }
               />
 
               <Balances
@@ -1897,71 +1824,95 @@ const handleUpdatePayment = async (data) => {
                 }
               />
 
-           <CollectionNotes
-  notes={notes}
-  onAdd={handleAddNote}
-  onUpdate={handleUpdateNote}
-  onDelete={handleDeleteNote}
-/>
+              <CollectionNotes
+                notes={notes}
+                onAdd={
+                  handleAddNote
+                }
+                onUpdate={
+                  handleUpdateNote
+                }
+                onDelete={
+                  handleDeleteNote
+                }
+              />
 
             </div>
 
-            <div>
+            {/* =================================================
+                RIGHT
+            ================================================= */}
+
+            <div className="min-w-0">
 
               <PaymentPanel
-  payment={payment}
-  custNo={custNo}
-  onUpdate={handleUpdatePayment}
-/>
+                payment={payment}
+                custNo={custNo}
+                onUpdate={
+                  handleUpdatePayment
+                }
+              />
 
             </div>
 
           </div>
+        </main>
 
-        </div>
+        {/* =================================================
+            FOOTER
+        ================================================= */}
 
-        {/* FOOTER */}
+        <footer className="mt-5 border-t border-gray-200 bg-white">
 
-<div className="footer-bar">
-  <div className="footer-info">
+          <div className="mx-auto flex max-w-[1800px] flex-col gap-4 px-6 py-4 md:flex-row md:items-center">
 
-    <div className="footer-item">
-      <span className="footer-label">AR NO</span>
-      <span className="footer-value">
-        {customer.ar_no || "—"}
-      </span>
-    </div>
+            <div>
+              <div className="text-[10px] font-semibold uppercase text-gray-400">
+                AR NO
+              </div>
 
-    <div className="footer-divider"></div>
+              <div className="text-sm font-semibold text-gray-700">
+                {customer.ar_no || "—"}
+              </div>
+            </div>
 
-    <div className="footer-item">
-      <span className="footer-label">เจ้าหน้าที่</span>
-      <span className="footer-value">
-        {user?.full_name || "—"}
-      </span>
-    </div>
+            <div className="hidden h-8 w-px bg-gray-200 md:block" />
 
-    <div className="footer-divider"></div>
+            <div>
+              <div className="text-[10px] font-semibold text-gray-400">
+                เจ้าหน้าที่
+              </div>
 
-    <div className="footer-item">
-      <span className="footer-label">โทรศัพท์</span>
+              <div className="text-sm font-semibold text-gray-700">
+                {user?.full_name ||
+                  "—"}
+              </div>
+            </div>
 
-      <a
-        className="footer-phone"
-        href={
-          user?.phone
-            ? `tel:${user.phone}`
-            : undefined
-        }
-      >
-        ☎ {user?.phone || "—"}
-      </a>
-    </div>
+            <div className="hidden h-8 w-px bg-gray-200 md:block" />
 
-  </div>
-</div>
+            <div>
+              <div className="text-[10px] font-semibold text-gray-400">
+                โทรศัพท์
+              </div>
+
+              <a
+                className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+                href={
+                  user?.phone
+                    ? `tel:${user.phone}`
+                    : undefined
+                }
+              >
+                ☎{" "}
+                {user?.phone || "—"}
+              </a>
+            </div>
+
+          </div>
+        </footer>
+
       </div>
-
     </div>
   );
 }

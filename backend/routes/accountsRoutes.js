@@ -12,7 +12,6 @@ const router = express.Router();
 // =====================================================
 // GET ALL ACCOUNTS
 // =====================================================
-
 router.get("/", async (req, res) => {
   try {
     const result = await pool.query(`
@@ -21,6 +20,7 @@ router.get("/", async (req, res) => {
         c.cust_no,
         c.name,
         c.acct_mark,
+        c.status,
 
         ab.os_bal,
         ab.prin_bal,
@@ -32,14 +32,8 @@ router.get("/", async (req, res) => {
         ad.max_bucket,
         ad.bucket,
 
-        -- เอา Due Date ล่าสุดของลูกค้า
-        (
-          SELECT pi.due_date
-          FROM payment_info pi
-          WHERE pi.customer_id = c.id
-          ORDER BY pi.due_date DESC NULLS LAST
-          LIMIT 1
-        ) AS due_date
+        pi.due_date,
+        pi.debtor_type
 
       FROM customers c
 
@@ -48,6 +42,18 @@ router.get("/", async (req, res) => {
 
       LEFT JOIN account_details ad
         ON ad.customer_id = c.id
+
+      LEFT JOIN LATERAL (
+        SELECT
+          pi.due_date,
+          pi.debtor_type
+        FROM payment_info pi
+        WHERE pi.customer_id = c.id
+        ORDER BY
+          pi.due_date DESC NULLS LAST,
+          pi.id DESC
+        LIMIT 1
+      ) pi ON true
 
       ORDER BY c.id ASC
     `);
