@@ -18,6 +18,7 @@ import {
 } from "../api";
 
 import Sidebar from "../components/Sidebar";
+import { useAuth } from "../context/AuthContext";
 
 // =====================================================
 // FORMAT
@@ -1513,9 +1514,7 @@ export default function AccountDetail() {
   const { custNo } = useParams();
   const navigate = useNavigate();
 
-  const user = JSON.parse(
-    localStorage.getItem("user") || "null"
-  );
+const { user } = useAuth();
 
   const [data, setData] =
     useState(null);

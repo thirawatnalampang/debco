@@ -6,7 +6,10 @@ const API_URL = "http://localhost:4000/api";
 
 export async function fetchAccounts() {
   const response = await fetch(
-    `${API_URL}/accounts`
+    `${API_URL}/accounts`,
+    {
+      credentials: "include",
+    }
   );
 
   if (!response.ok) {
@@ -24,11 +27,15 @@ export async function fetchAccounts() {
 
 export async function fetchAccount(custNo) {
   const response = await fetch(
-    `${API_URL}/accounts/${encodeURIComponent(custNo)}`
+    `${API_URL}/accounts/${encodeURIComponent(custNo)}`,
+    {
+      credentials: "include",
+    }
   );
 
   if (!response.ok) {
-    const data = await response.json().catch(() => null);
+    const data =
+      await response.json().catch(() => null);
 
     throw new Error(
       data?.error ||
@@ -51,6 +58,8 @@ export async function addNote(custNo, noteData) {
     {
       method: "POST",
 
+      credentials: "include",
+
       headers: {
         "Content-Type": "application/json",
       },
@@ -60,7 +69,8 @@ export async function addNote(custNo, noteData) {
   );
 
   if (!response.ok) {
-    const data = await response.json().catch(() => null);
+    const data =
+      await response.json().catch(() => null);
 
     throw new Error(
       data?.error ||
@@ -81,6 +91,8 @@ export async function updateNote(noteId, noteData) {
     {
       method: "PATCH",
 
+      credentials: "include",
+
       headers: {
         "Content-Type": "application/json",
       },
@@ -90,7 +102,8 @@ export async function updateNote(noteId, noteData) {
   );
 
   if (!response.ok) {
-    const data = await response.json().catch(() => null);
+    const data =
+      await response.json().catch(() => null);
 
     throw new Error(
       data?.error ||
@@ -116,6 +129,8 @@ export async function updatePayment(
     {
       method: "PATCH",
 
+      credentials: "include",
+
       headers: {
         "Content-Type": "application/json",
       },
@@ -137,9 +152,9 @@ export async function updatePayment(
 
   return response.json();
 }
+
 // =====================================================
 // DELETE COLLECTION NOTE
-// DELETE /api/accounts/notes/:noteId
 // =====================================================
 
 export async function deleteNote(noteId) {
@@ -147,25 +162,36 @@ export async function deleteNote(noteId) {
     `${API_URL}/accounts/notes/${noteId}`,
     {
       method: "DELETE",
+
+      credentials: "include",
     }
   );
 
   if (!response.ok) {
-    const data = await response.json().catch(() => ({}));
+    const data =
+      await response.json().catch(() => ({}));
 
     throw new Error(
-      data.error || "ลบ Collection Note ไม่สำเร็จ"
+      data.error ||
+        "ลบ Collection Note ไม่สำเร็จ"
     );
   }
 
   return response.json();
 }
-export async function login(username, password) {
 
+// =====================================================
+// LOGIN
+// =====================================================
+
+export async function login(username, password) {
   const response = await fetch(
     `${API_URL}/auth/login`,
     {
       method: "POST",
+
+      // สำคัญสำหรับ Cookie
+      credentials: "include",
 
       headers: {
         "Content-Type": "application/json",
@@ -182,7 +208,35 @@ export async function login(username, password) {
 
   if (!response.ok) {
     throw new Error(
-      data.error || "เข้าสู่ระบบไม่สำเร็จ"
+      data.error ||
+        "เข้าสู่ระบบไม่สำเร็จ"
+    );
+  }
+
+  return data;
+}
+
+// =====================================================
+// LOGOUT
+// =====================================================
+
+export async function logout() {
+  const response = await fetch(
+    `${API_URL}/auth/logout`,
+    {
+      method: "POST",
+
+      credentials: "include",
+    }
+  );
+
+  const data =
+    await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(
+      data.error ||
+        "ออกจากระบบไม่สำเร็จ"
     );
   }
 

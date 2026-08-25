@@ -38,10 +38,12 @@ function Accounts() {
         setLoading(true);
         setError("");
 
-        const response = await fetch(
-          "http://localhost:4000/api/accounts"
-        );
-
+       const response = await fetch(
+  "http://localhost:4000/api/accounts",
+  {
+    credentials: "include",
+  }
+);
         if (!response.ok) {
           throw new Error(
             `โหลดข้อมูล Accounts ไม่สำเร็จ (${response.status})`
