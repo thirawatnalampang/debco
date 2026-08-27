@@ -57,7 +57,39 @@ router.post('/accounts/:custNo', async (req, res) => {
     });
   }
 });
+// =====================================================
+// GET COLLECTION NOTES
+// GET /api/notes/accounts/:custNo
+// =====================================================
 
+router.get('/accounts/:custNo', async (req, res) => {
+  try {
+    const { custNo } = req.params;
+
+    const result = await pool.query(
+      `
+      SELECT *
+      FROM collection_notes
+      WHERE cust_no = $1
+      ORDER BY created_at DESC
+      `,
+      [custNo]
+    );
+
+    res.json(result.rows);
+
+  } catch (error) {
+    console.error(
+      '❌ Get Collection Notes Error:',
+      error
+    );
+
+    res.status(500).json({
+      message: 'โหลด Collection Notes ไม่สำเร็จ',
+      error: error.message,
+    });
+  }
+});
 // =====================================================
 // UPDATE COLLECTION NOTE
 // PATCH /api/notes/:id

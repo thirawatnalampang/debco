@@ -9,7 +9,8 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Accounts from "./pages/Accounts";
 import AccountDetail from "./pages/AccountDetail";
-
+import Reports from "./pages/Reports";
+import Collections from "./pages/Collections";
 function App() {
   return (
     <BrowserRouter>
@@ -26,13 +27,13 @@ function App() {
           path="/dashboard"
           element={<Dashboard />}
         />
-
+  <Route path="/reports" element={<Reports />} />
         {/* Accounts */}
         <Route
           path="/accounts"
           element={<Accounts />}
         />
-
+<Route path="/collections" element={<Collections />} />
         {/* Account Detail */}
         <Route
           path="/accounts/:custNo"

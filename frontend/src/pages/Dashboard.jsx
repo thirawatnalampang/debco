@@ -306,18 +306,13 @@ const overdueAccounts = accounts.filter(
   // =====================================================
 
   const formatMoney = (amount) => {
-    const value = Number(amount || 0);
+  const value = Number(amount || 0);
 
-    if (value >= 1000000) {
-      return `฿${(value / 1000000).toFixed(1)}M`;
-    }
-
-    if (value >= 1000) {
-      return `฿${(value / 1000).toFixed(1)}K`;
-    }
-
-    return `฿${value.toLocaleString("th-TH")}`;
-  };
+  return `฿${value.toLocaleString("th-TH", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+};
 
   const formatDate = (date) => {
     if (!date) return "-";
