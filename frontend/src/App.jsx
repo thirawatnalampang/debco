@@ -11,6 +11,9 @@ import Accounts from "./pages/Accounts";
 import AccountDetail from "./pages/AccountDetail";
 import Reports from "./pages/Reports";
 import Collections from "./pages/Collections";
+import Settings from "./pages/Settings";
+import NewCollection from "./pages/NewCollection";
+import AddAccount from "./pages/AddAccount";
 function App() {
   return (
     <BrowserRouter>
@@ -61,7 +64,9 @@ function App() {
             />
           }
         />
-
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/collections/new" element={<NewCollection />} />
+<Route path="/accounts/add" element={<AddAccount />} />
       </Routes>
     </BrowserRouter>
   );

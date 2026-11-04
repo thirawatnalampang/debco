@@ -74,6 +74,191 @@ router.get("/", async (req, res) => {
     });
   }
 });
+
+// POST /api/accounts
+// เพิ่มบัญชีลูกหนี้ใหม่
+
+/**
+ * POST /api/accounts
+ * เพิ่มบัญชีลูกหนี้ พร้อมข้อมูลยอดหนี้และรายละเอียดบัญชี
+ */
+router.post("/", async (req, res) => {
+  const {
+    cust_no,
+    acct_mark,
+    name,
+    id_card,
+    birth_date,
+    occupation,
+    position,
+    address,
+    npl_pct,
+    stage,
+    ar_no,
+    officer_name,
+    officer_phone,
+    status,
+
+    // ยอดหนี้
+    prin_bal,
+    os_bal,
+    ovd_amt,
+    dpd,
+
+    // การชำระล่าสุด
+    last_payment_date,
+    last_payment_amount,
+  } = req.body;
+
+  if (
+    !String(cust_no || "").trim() ||
+    !String(acct_mark || "").trim() ||
+    !String(name || "").trim()
+  ) {
+    return res.status(400).json({
+      message: "กรุณากรอกเลขที่ลูกหนี้ เลขบัญชี และชื่อลูกค้า",
+    });
+  }
+
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // 1. ตรวจเลขลูกหนี้และเลขบัญชีซ้ำ
+    const existing = await client.query(
+      `SELECT id, cust_no, acct_mark
+       FROM customers
+       WHERE cust_no = $1 OR acct_mark = $2
+       LIMIT 1`,
+      [String(cust_no).trim(), String(acct_mark).trim()]
+    );
+
+    if (existing.rowCount > 0) {
+      await client.query("ROLLBACK");
+
+      const duplicate = existing.rows[0];
+
+      return res.status(409).json({
+        message:
+          duplicate.cust_no === String(cust_no).trim()
+            ? "เลขที่ลูกหนี้นี้มีอยู่ในระบบแล้ว"
+            : "เลขบัญชีนี้มีอยู่ในระบบแล้ว",
+      });
+    }
+
+    // 2. บันทึกข้อมูลลูกค้า
+    const customerResult = await client.query(
+      `INSERT INTO customers (
+        cust_no,
+        acct_mark,
+        name,
+        id_card,
+        birth_date,
+        occupation,
+        position,
+        address,
+        npl_pct,
+        stage,
+        ar_no,
+        officer_name,
+        officer_phone,
+        status
+      )
+      VALUES (
+        $1, $2, $3, $4, $5, $6, $7,
+        $8, $9, $10, $11, $12, $13, $14
+      )
+      RETURNING *`,
+      [
+        String(cust_no).trim(),
+        String(acct_mark).trim(),
+        String(name).trim(),
+        id_card || null,
+        birth_date || null,
+        occupation || null,
+        position || null,
+        address || null,
+        npl_pct === "" || npl_pct == null
+          ? null : Number(npl_pct),
+        stage === "" || stage == null
+          ? null : Number(stage),
+        ar_no || null,
+        officer_name || null,
+        officer_phone || null,
+        status || "ACTIVE",
+      ]
+    );
+
+    const customer = customerResult.rows[0];
+    const customerId = customer.id;
+
+    // 3. บันทึกยอดหนี้
+    await client.query(
+      `INSERT INTO account_balances (
+        customer_id,
+        prin_bal,
+        os_bal,
+        ovd_amt
+      )
+      VALUES ($1, $2, $3, $4)`,
+      [
+        customerId,
+        prin_bal === "" || prin_bal == null
+          ? null : Number(prin_bal),
+        os_bal === "" || os_bal == null
+          ? null : Number(os_bal),
+        ovd_amt === "" || ovd_amt == null
+          ? null : Number(ovd_amt),
+      ]
+    );
+
+    // 4. บันทึกรายละเอียดบัญชีและข้อมูลชำระล่าสุด
+    await client.query(
+      `INSERT INTO account_details (
+        customer_id,
+        dpd,
+        lst_pay_date,
+        lst_pay_amt
+      )
+      VALUES ($1, $2, $3, $4)`,
+      [
+        customerId,
+        dpd === "" || dpd == null
+          ? null : Number(dpd),
+        last_payment_date || null,
+        last_payment_amount === "" ||
+        last_payment_amount == null
+          ? null : Number(last_payment_amount),
+      ]
+    );
+
+    await client.query("COMMIT");
+
+    return res.status(201).json({
+      message: "เพิ่มบัญชีลูกหนี้สำเร็จ",
+      customer,
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+
+    console.error("Add account error:", error);
+
+    if (error.code === "23505") {
+      return res.status(409).json({
+        message: "เลขที่ลูกหนี้หรือเลขบัญชีซ้ำในระบบ",
+      });
+    }
+
+    return res.status(500).json({
+      message: "เพิ่มบัญชีลูกหนี้ไม่สำเร็จ",
+      detail: error.message,
+    });
+  } finally {
+    client.release();
+  }
+});
+
 // =====================================================
 // GET FULL ACCOUNT BY CUSTOMER NO
 // =====================================================

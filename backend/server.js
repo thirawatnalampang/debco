@@ -8,7 +8,7 @@ import notesRouter from "./routes/notesRoutes.js";
 import accountsRoutes from "./routes/accountsRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import authMiddleware from "./middleware/authMiddleware.js";
-
+import tasksRoutes from "./routes/tasksRoutes.js";
 const app = express();
 
 // =====================================================
@@ -49,7 +49,8 @@ app.use(
   authMiddleware,
   notesRouter
 );
-
+// วางต่อจาก routes ที่มี authMiddleware
+app.use("/api/tasks", authMiddleware, tasksRoutes);
 // =====================================================
 // TEST
 // =====================================================

@@ -373,21 +373,34 @@ function Accounts() {
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">
                 Accounts
               </h1>
+<div className="flex flex-col gap-4 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+  <div>
+    <h2 className="text-base font-semibold text-slate-900">
+      Customer Accounts
+    </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
-                Customer accounts
-              </p>
+    <p className="mt-1 text-xs text-slate-500">
+      Showing filtered customer accounts
+    </p>
+  </div>
 
-            </div>
+  <div className="flex flex-wrap items-center gap-3">
+    <span className="text-sm text-slate-500">
+      {loading
+        ? "Loading..."
+        : `${filteredAccounts.length} records`}
+    </span>
 
-            <div className="flex items-center">
-
-              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
-                {loading
-                  ? "Loading..."
-                  : `${filteredAccounts.length} / ${accounts.length} Accounts`}
-              </span>
-
+    <button
+      type="button"
+      onClick={() => navigate("/accounts/add")}
+      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:scale-95"
+    >
+      <span className="text-lg leading-none">+</span>
+      เพิ่มบัญชีลูกหนี้
+    </button>
+  </div>
+</div>
             </div>
 
           </div>
