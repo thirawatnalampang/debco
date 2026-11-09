@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict 9A32MxSC2CNX3t0yt16loy9oahW60QWkg6agVXHPAvpmJIeEzBLyvXw7hhDR3Ij
+\restrict nKkeyEHSVCRR99mPg5OyRZwRk99Wfgea8Gqretw9wkVpEVqS4ZLD95zduHKWAkl
 
 -- Dumped from database version 18.6
 -- Dumped by pg_dump version 18.6
 
--- Started on 2026-09-16 17:27:00
+-- Started on 2026-11-09 08:56:53
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -59,7 +59,7 @@ CREATE SEQUENCE public.account_balances_id_seq
 ALTER SEQUENCE public.account_balances_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5087 (class 0 OID 0)
+-- TOC entry 5124 (class 0 OID 0)
 -- Dependencies: 223
 -- Name: account_balances_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -144,7 +144,7 @@ CREATE SEQUENCE public.account_details_id_seq
 ALTER SEQUENCE public.account_details_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5088 (class 0 OID 0)
+-- TOC entry 5125 (class 0 OID 0)
 -- Dependencies: 225
 -- Name: account_details_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -187,12 +187,60 @@ CREATE SEQUENCE public.collection_notes_id_seq
 ALTER SEQUENCE public.collection_notes_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5089 (class 0 OID 0)
+-- TOC entry 5126 (class 0 OID 0)
 -- Dependencies: 229
 -- Name: collection_notes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.collection_notes_id_seq OWNED BY public.collection_notes.id;
+
+
+--
+-- TOC entry 234 (class 1259 OID 16688)
+-- Name: collection_tasks; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.collection_tasks (
+    id integer NOT NULL,
+    customer_id integer NOT NULL,
+    task_type character varying(30) DEFAULT 'Phone'::character varying NOT NULL,
+    target_amount numeric(14,2) DEFAULT 0 NOT NULL,
+    due_date date NOT NULL,
+    priority character varying(20) DEFAULT 'Medium'::character varying NOT NULL,
+    description text,
+    status character varying(20) DEFAULT 'Pending'::character varying NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT collection_tasks_priority_check CHECK (((priority)::text = ANY ((ARRAY['Low'::character varying, 'Medium'::character varying, 'High'::character varying])::text[]))),
+    CONSTRAINT collection_tasks_status_check CHECK (((status)::text = ANY ((ARRAY['Pending'::character varying, 'In Progress'::character varying, 'Completed'::character varying, 'Cancelled'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.collection_tasks OWNER TO postgres;
+
+--
+-- TOC entry 233 (class 1259 OID 16687)
+-- Name: collection_tasks_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.collection_tasks_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.collection_tasks_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 5127 (class 0 OID 0)
+-- Dependencies: 233
+-- Name: collection_tasks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.collection_tasks_id_seq OWNED BY public.collection_tasks.id;
 
 
 --
@@ -227,7 +275,7 @@ CREATE SEQUENCE public.customer_phones_id_seq
 ALTER SEQUENCE public.customer_phones_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5090 (class 0 OID 0)
+-- TOC entry 5128 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: customer_phones_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -279,7 +327,7 @@ CREATE SEQUENCE public.customers_id_seq
 ALTER SEQUENCE public.customers_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5091 (class 0 OID 0)
+-- TOC entry 5129 (class 0 OID 0)
 -- Dependencies: 219
 -- Name: customers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -325,12 +373,57 @@ CREATE SEQUENCE public.payment_info_id_seq
 ALTER SEQUENCE public.payment_info_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5092 (class 0 OID 0)
+-- TOC entry 5130 (class 0 OID 0)
 -- Dependencies: 227
 -- Name: payment_info_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.payment_info_id_seq OWNED BY public.payment_info.id;
+
+
+--
+-- TOC entry 236 (class 1259 OID 16719)
+-- Name: payment_promises; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.payment_promises (
+    id integer NOT NULL,
+    task_id integer NOT NULL,
+    promised_amount numeric(14,2) NOT NULL,
+    promised_date date NOT NULL,
+    status character varying(20) DEFAULT 'Pending'::character varying NOT NULL,
+    note text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT payment_promises_promised_amount_check CHECK ((promised_amount > (0)::numeric)),
+    CONSTRAINT payment_promises_status_check CHECK (((status)::text = ANY ((ARRAY['Pending'::character varying, 'Kept'::character varying, 'Broken'::character varying, 'Cancelled'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.payment_promises OWNER TO postgres;
+
+--
+-- TOC entry 235 (class 1259 OID 16718)
+-- Name: payment_promises_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.payment_promises_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.payment_promises_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 5131 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: payment_promises_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.payment_promises_id_seq OWNED BY public.payment_promises.id;
 
 
 --
@@ -368,7 +461,7 @@ CREATE SEQUENCE public.users_id_seq
 ALTER SEQUENCE public.users_id_seq OWNER TO postgres;
 
 --
--- TOC entry 5093 (class 0 OID 0)
+-- TOC entry 5132 (class 0 OID 0)
 -- Dependencies: 231
 -- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
@@ -377,7 +470,7 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
--- TOC entry 4890 (class 2604 OID 16586)
+-- TOC entry 4900 (class 2604 OID 16586)
 -- Name: account_balances id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -385,7 +478,7 @@ ALTER TABLE ONLY public.account_balances ALTER COLUMN id SET DEFAULT nextval('pu
 
 
 --
--- TOC entry 4891 (class 2604 OID 16599)
+-- TOC entry 4901 (class 2604 OID 16599)
 -- Name: account_details id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -393,7 +486,7 @@ ALTER TABLE ONLY public.account_details ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 4893 (class 2604 OID 16625)
+-- TOC entry 4903 (class 2604 OID 16625)
 -- Name: collection_notes id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -401,7 +494,15 @@ ALTER TABLE ONLY public.collection_notes ALTER COLUMN id SET DEFAULT nextval('pu
 
 
 --
--- TOC entry 4889 (class 2604 OID 16571)
+-- TOC entry 4908 (class 2604 OID 16691)
+-- Name: collection_tasks id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.collection_tasks ALTER COLUMN id SET DEFAULT nextval('public.collection_tasks_id_seq'::regclass);
+
+
+--
+-- TOC entry 4899 (class 2604 OID 16571)
 -- Name: customer_phones id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -409,7 +510,7 @@ ALTER TABLE ONLY public.customer_phones ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 4886 (class 2604 OID 16555)
+-- TOC entry 4896 (class 2604 OID 16555)
 -- Name: customers id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -417,7 +518,7 @@ ALTER TABLE ONLY public.customers ALTER COLUMN id SET DEFAULT nextval('public.cu
 
 
 --
--- TOC entry 4892 (class 2604 OID 16612)
+-- TOC entry 4902 (class 2604 OID 16612)
 -- Name: payment_info id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -425,7 +526,15 @@ ALTER TABLE ONLY public.payment_info ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
--- TOC entry 4895 (class 2604 OID 16649)
+-- TOC entry 4915 (class 2604 OID 16722)
+-- Name: payment_promises id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.payment_promises ALTER COLUMN id SET DEFAULT nextval('public.payment_promises_id_seq'::regclass);
+
+
+--
+-- TOC entry 4905 (class 2604 OID 16649)
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -433,7 +542,7 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
--- TOC entry 5073 (class 0 OID 16583)
+-- TOC entry 5106 (class 0 OID 16583)
 -- Dependencies: 224
 -- Data for Name: account_balances; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -449,7 +558,7 @@ COPY public.account_balances (id, customer_id, prin_bal, os_bal, os_bal_cust, ov
 
 
 --
--- TOC entry 5075 (class 0 OID 16596)
+-- TOC entry 5108 (class 0 OID 16596)
 -- Dependencies: 226
 -- Data for Name: account_details; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -465,7 +574,7 @@ COPY public.account_details (id, customer_id, oa_name, open_date, assign_date, c
 
 
 --
--- TOC entry 5079 (class 0 OID 16622)
+-- TOC entry 5112 (class 0 OID 16622)
 -- Dependencies: 230
 -- Data for Name: collection_notes; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -481,11 +590,36 @@ COPY public.collection_notes (id, customer_id, action_code, note_type, telephone
 4	1	NOA | OC	NOTE	0812345100	ติดต่อลูกค้าและแจ้งยอดค้างชำระ	2026-08-17 16:03:00+07
 11	6	NOA | OC	NOTE	0812345600	ลูกหนี้แจ้งว่าขอเจรจาปรับโครงสร้างหนี้	2026-08-17 16:09:00+07
 12	6	OC | OC	NOTE	0812345600	แจ้งยอดค้างชำระและนัดติดตามผล	2026-08-17 16:09:00+07
+15	7	NOA | OC	Mobile	630538750272507	5757	2026-11-04 15:56:00+07
 \.
 
 
 --
--- TOC entry 5071 (class 0 OID 16568)
+-- TOC entry 5116 (class 0 OID 16688)
+-- Dependencies: 234
+-- Data for Name: collection_tasks; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.collection_tasks (id, customer_id, task_type, target_amount, due_date, priority, description, status, created_at, updated_at) FROM stdin;
+1	1	Phone	50000.00	2004-10-14	Low	ตามมานาน	Pending	2026-10-21 14:32:18.4234+07	2026-10-21 14:32:18.4234+07
+2	2	Phone	41004040.00	2026-10-21	High	า่า่	Pending	2026-10-21 14:52:52.522358+07	2026-10-21 14:52:52.522358+07
+3	8	Phone	50000.00	2026-10-21	Low	งสวสว	Pending	2026-10-21 14:53:20.112782+07	2026-10-21 14:53:20.112782+07
+4	8	Phone	50000.00	2026-10-21	Medium	\N	Pending	2026-10-21 15:06:54.494749+07	2026-10-21 15:06:54.494749+07
+5	8	Phone	50000.00	2026-10-21	Medium	ยย	Pending	2026-10-21 15:10:30.60882+07	2026-10-21 15:10:30.60882+07
+6	8	Phone	50000.00	2026-10-21	Medium	4141	Pending	2026-10-21 15:13:07.873459+07	2026-10-21 15:13:07.873459+07
+7	1	Phone	25000.00	2026-10-21	Medium	\N	Pending	2026-10-21 15:13:38.770032+07	2026-10-21 15:13:38.770032+07
+8	8	Phone	411000.00	2026-11-04	Medium	SS	Pending	2026-11-04 13:44:05.97685+07	2026-11-04 13:44:05.97685+07
+9	1	Phone	50000.00	2026-11-04	Medium	\N	Pending	2026-11-04 13:47:36.791626+07	2026-11-04 13:47:36.791626+07
+10	10	Phone	100000.00	2026-11-04	High	5757	Pending	2026-11-04 13:48:26.798759+07	2026-11-04 13:48:26.798759+07
+11	1	Mobile	500000.00	2026-11-04	Low	\N	Pending	2026-11-04 14:34:41.652304+07	2026-11-04 14:34:41.652304+07
+12	9	Phone	50000.00	2026-11-04	Medium	\N	Pending	2026-11-04 14:35:19.359089+07	2026-11-04 14:35:19.359089+07
+13	10	Office	717507507.00	2026-11-04	High	\N	Pending	2026-11-04 14:37:55.503653+07	2026-11-04 14:37:55.503653+07
+14	7	Office	100000.00	2026-11-27	High	\N	Pending	2026-11-04 14:38:44.670492+07	2026-11-04 14:38:44.670492+07
+\.
+
+
+--
+-- TOC entry 5104 (class 0 OID 16568)
 -- Dependencies: 222
 -- Data for Name: customer_phones; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -507,39 +641,52 @@ COPY public.customer_phones (id, customer_id, label, number) FROM stdin;
 
 
 --
--- TOC entry 5069 (class 0 OID 16552)
+-- TOC entry 5102 (class 0 OID 16552)
 -- Dependencies: 220
 -- Data for Name: customers; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.customers (id, cust_no, acct_mark, name, id_card, birth_date, occupation, "position", address, npl_pct, stage, ar_no, officer_name, officer_phone, created_at, status) FROM stdin;
-1	0000553353	626280XXXXXX5559	นาย กิตติพงษ์ ใจดี	1103700123456	1990-05-15	พนักงานบริษัท	เจ้าหน้าที่	กรุงเทพมหานคร	15.50	1	AR00001	สมชาย เจ้าหน้าที่	0812345678	2026-08-17 15:57:02.450238+07	ACTIVE
-2	0000553354	626280XXXXXX6660	นางสาว พิมพ์ชนก รุ่งเรือง	1103700234567	1992-08-20	ธุรกิจส่วนตัว	เจ้าของกิจการ	เชียงใหม่	8.25	1	AR00002	สมชาย เจ้าหน้าที่	0812345678	2026-08-17 15:57:02.450238+07	INACTIVE
-3	0000553355	626280XXXXXX7771	นาย ธนกร มั่นคง	1103700345678	1988-11-10	ค้าขาย	เจ้าของร้าน	ชลบุรี	32.75	2	AR00003	วิชัย เจ้าหน้าที่	0898765432	2026-08-17 15:57:02.450238+07	SUSPENDED
-4	0000553356	626280XXXXXX8882	นางสาว สุภัสสรา รักดี	1103700456789	1995-02-28	พนักงานบริษัท	พนักงาน	นครปฐม	5.00	1	AR00004	วิชัย เจ้าหน้าที่	0898765432	2026-08-17 15:57:02.450238+07	CLOSED
-6	0000553357	626280XXXXXX9999	นาย วรพล มั่งมี	1103700999999	1988-06-15	เจ้าของกิจการ	ผู้จัดการ	กรุงเทพมหานคร	75.00	3	AR000357	AO05	0812345500	2026-08-17 16:09:41.742641+07	WRITTEN_OFF
-7	0000553358	626280XXXXXX1111	นางสาว อรทัย เจริญสุข	1103700888888	1992-09-20	พนักงานบริษัท	หัวหน้างาน	เชียงใหม่	50.00	2	AR000358	AO06	0812345700	2026-08-17 16:11:32.683903+07	ACTIVE
+1	0000553353	626280XXXXXX5559	นายสัตว์ ดี	1103700123456	1990-05-15	พนักงานบริษัท	เจ้าหน้าที่	กรุงเทพมหานคร	15.50	1	AR00001	สมชาย เจ้าหน้าที่	0812345678	2026-08-17 15:57:02.450238+07	ACTIVE
+2	0000553354	626280XXXXXX6660	นายจริงใจ ดีจ้า	1103700234567	1992-08-20	ธุรกิจส่วนตัว	เจ้าของกิจการ	เชียงใหม่	8.25	1	AR00002	สมชาย เจ้าหน้าที่	0812345678	2026-08-17 15:57:02.450238+07	INACTIVE
+3	0000553355	626280XXXXXX7771	นายรักเเก หา	1103700345678	1988-11-10	ค้าขาย	เจ้าของร้าน	ชลบุรี	32.75	2	AR00003	วิชัย เจ้าหน้าที่	0898765432	2026-08-17 15:57:02.450238+07	SUSPENDED
+4	0000553356	626280XXXXXX8882	นายรัชนนท์ เมย์	1103700456789	1995-02-28	พนักงานบริษัท	พนักงาน	นครปฐม	5.00	1	AR00004	วิชัย เจ้าหน้าที่	0898765432	2026-08-17 15:57:02.450238+07	CLOSED
+6	0000553357	626280XXXXXX9999	นายจูลิวาน เมย์ช่า	1103700999999	1988-06-15	เจ้าของกิจการ	ผู้จัดการ	กรุงเทพมหานคร	75.00	3	AR000357	AO05	0812345500	2026-08-17 16:09:41.742641+07	WRITTEN_OFF
+7	0000553358	626280XXXXXX1111	นางซ่าซ๋า จ้าช่า	1103700888888	1992-09-20	พนักงานบริษัท	หัวหน้างาน	เชียงใหม่	50.00	2	AR000358	AO06	0812345700	2026-08-17 16:11:32.683903+07	ACTIVE
+8	tae	4545	422442	4224424242	2026-10-21	4224	4242	2424	20.00	244224	242442	424224	24424242	2026-10-21 14:40:25.293411+07	ACTIVE
+9	527257257	57257527527	าส่	58757587	2026-10-21	85	558	85	50.00	57057	123456	424224	057057	2026-10-21 15:23:59.814174+07	ACTIVE
+10	014014014	57257527527	าส่	58757587	2026-10-21	85	558	85	50.00	57057	123456	424224	057057	2026-10-21 15:26:57.670237+07	ACTIVE
 \.
 
 
 --
--- TOC entry 5077 (class 0 OID 16609)
+-- TOC entry 5110 (class 0 OID 16609)
 -- Dependencies: 228
 -- Data for Name: payment_info; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public.payment_info (id, customer_id, call_result, due_date, due_amount, forecast_pct, debtor_type, contact_date, last_phone, status_tag) FROM stdin;
-11	6	ติดต่อได้	2026-07-28	25000.00	100	YPN	2026-08-13	06587635757	\N
-9	4	ติดต่อไม่ได้	2026-07-26	1232.00	60	YPL	2026-08-11	0812345400	\N
 5	2	ไม่รับสาย	2026-08-01	41000000.00	10	NPL	2026-08-21	0812345200	\N
 3	1	ติดต่อไม่ได้	2026-08-11	1000.00	70	YPN	2026-08-17	0812345100	\N
-13	7	ไม่รับสาย	2026-07-26	5000.00	100	Normal	2026-08-11	0988405158	\N
-7	3	ติดต่อได้	2026-08-02	7000.00	40	Normal	2026-08-02	0812345300	\N
+11	6	ติดต่อไม่ได้	2026-07-27	25000.00	100	YPN	2026-08-12	06587635757	\N
+7	3	ไม่รับสาย	2026-08-01	7000.00	40	Normal	2026-08-01	0812345300	\N
+9	4	ไม่รับสาย	2026-07-25	1232.00	60	YPL	2026-08-10	0812345400	\N
+13	7	ติดต่อไม่ได้	2026-12-02	1700000.00	50	YPN	2026-11-03	0988405158	\N
 \.
 
 
 --
--- TOC entry 5081 (class 0 OID 16646)
+-- TOC entry 5118 (class 0 OID 16719)
+-- Dependencies: 236
+-- Data for Name: payment_promises; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.payment_promises (id, task_id, promised_amount, promised_date, status, note, created_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5114 (class 0 OID 16646)
 -- Dependencies: 232
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -551,7 +698,7 @@ COPY public.users (id, username, password, full_name, role, created_at, phone) F
 
 
 --
--- TOC entry 5094 (class 0 OID 0)
+-- TOC entry 5133 (class 0 OID 0)
 -- Dependencies: 223
 -- Name: account_balances_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -560,7 +707,7 @@ SELECT pg_catalog.setval('public.account_balances_id_seq', 10, true);
 
 
 --
--- TOC entry 5095 (class 0 OID 0)
+-- TOC entry 5134 (class 0 OID 0)
 -- Dependencies: 225
 -- Name: account_details_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -569,16 +716,25 @@ SELECT pg_catalog.setval('public.account_details_id_seq', 11, true);
 
 
 --
--- TOC entry 5096 (class 0 OID 0)
+-- TOC entry 5135 (class 0 OID 0)
 -- Dependencies: 229
 -- Name: collection_notes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.collection_notes_id_seq', 14, true);
+SELECT pg_catalog.setval('public.collection_notes_id_seq', 15, true);
 
 
 --
--- TOC entry 5097 (class 0 OID 0)
+-- TOC entry 5136 (class 0 OID 0)
+-- Dependencies: 233
+-- Name: collection_tasks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.collection_tasks_id_seq', 14, true);
+
+
+--
+-- TOC entry 5137 (class 0 OID 0)
 -- Dependencies: 221
 -- Name: customer_phones_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -587,16 +743,16 @@ SELECT pg_catalog.setval('public.customer_phones_id_seq', 20, true);
 
 
 --
--- TOC entry 5098 (class 0 OID 0)
+-- TOC entry 5138 (class 0 OID 0)
 -- Dependencies: 219
 -- Name: customers_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.customers_id_seq', 7, true);
+SELECT pg_catalog.setval('public.customers_id_seq', 10, true);
 
 
 --
--- TOC entry 5099 (class 0 OID 0)
+-- TOC entry 5139 (class 0 OID 0)
 -- Dependencies: 227
 -- Name: payment_info_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -605,7 +761,16 @@ SELECT pg_catalog.setval('public.payment_info_id_seq', 14, true);
 
 
 --
--- TOC entry 5100 (class 0 OID 0)
+-- TOC entry 5140 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: payment_promises_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.payment_promises_id_seq', 1, false);
+
+
+--
+-- TOC entry 5141 (class 0 OID 0)
 -- Dependencies: 231
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
@@ -614,7 +779,7 @@ SELECT pg_catalog.setval('public.users_id_seq', 2, true);
 
 
 --
--- TOC entry 4905 (class 2606 OID 16589)
+-- TOC entry 4929 (class 2606 OID 16589)
 -- Name: account_balances account_balances_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -623,7 +788,7 @@ ALTER TABLE ONLY public.account_balances
 
 
 --
--- TOC entry 4907 (class 2606 OID 16602)
+-- TOC entry 4931 (class 2606 OID 16602)
 -- Name: account_details account_details_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -632,7 +797,7 @@ ALTER TABLE ONLY public.account_details
 
 
 --
--- TOC entry 4911 (class 2606 OID 16631)
+-- TOC entry 4935 (class 2606 OID 16631)
 -- Name: collection_notes collection_notes_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -641,7 +806,16 @@ ALTER TABLE ONLY public.collection_notes
 
 
 --
--- TOC entry 4903 (class 2606 OID 16576)
+-- TOC entry 4941 (class 2606 OID 16712)
+-- Name: collection_tasks collection_tasks_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.collection_tasks
+    ADD CONSTRAINT collection_tasks_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4927 (class 2606 OID 16576)
 -- Name: customer_phones customer_phones_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -650,7 +824,7 @@ ALTER TABLE ONLY public.customer_phones
 
 
 --
--- TOC entry 4899 (class 2606 OID 16566)
+-- TOC entry 4923 (class 2606 OID 16566)
 -- Name: customers customers_cust_no_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -659,7 +833,7 @@ ALTER TABLE ONLY public.customers
 
 
 --
--- TOC entry 4901 (class 2606 OID 16564)
+-- TOC entry 4925 (class 2606 OID 16564)
 -- Name: customers customers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -668,7 +842,7 @@ ALTER TABLE ONLY public.customers
 
 
 --
--- TOC entry 4909 (class 2606 OID 16615)
+-- TOC entry 4933 (class 2606 OID 16615)
 -- Name: payment_info payment_info_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -677,7 +851,16 @@ ALTER TABLE ONLY public.payment_info
 
 
 --
--- TOC entry 4913 (class 2606 OID 16658)
+-- TOC entry 4946 (class 2606 OID 16736)
+-- Name: payment_promises payment_promises_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.payment_promises
+    ADD CONSTRAINT payment_promises_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 4937 (class 2606 OID 16658)
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -686,7 +869,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 4915 (class 2606 OID 16660)
+-- TOC entry 4939 (class 2606 OID 16660)
 -- Name: users users_username_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -695,7 +878,31 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 4917 (class 2606 OID 16590)
+-- TOC entry 4942 (class 1259 OID 16742)
+-- Name: idx_collection_tasks_customer; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_collection_tasks_customer ON public.collection_tasks USING btree (customer_id);
+
+
+--
+-- TOC entry 4943 (class 1259 OID 16743)
+-- Name: idx_collection_tasks_due_status; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_collection_tasks_due_status ON public.collection_tasks USING btree (due_date, status);
+
+
+--
+-- TOC entry 4944 (class 1259 OID 16744)
+-- Name: idx_payment_promises_task; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_payment_promises_task ON public.payment_promises USING btree (task_id);
+
+
+--
+-- TOC entry 4948 (class 2606 OID 16590)
 -- Name: account_balances account_balances_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -704,7 +911,7 @@ ALTER TABLE ONLY public.account_balances
 
 
 --
--- TOC entry 4918 (class 2606 OID 16603)
+-- TOC entry 4949 (class 2606 OID 16603)
 -- Name: account_details account_details_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -713,7 +920,7 @@ ALTER TABLE ONLY public.account_details
 
 
 --
--- TOC entry 4920 (class 2606 OID 16632)
+-- TOC entry 4951 (class 2606 OID 16632)
 -- Name: collection_notes collection_notes_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -722,7 +929,16 @@ ALTER TABLE ONLY public.collection_notes
 
 
 --
--- TOC entry 4916 (class 2606 OID 16577)
+-- TOC entry 4952 (class 2606 OID 16713)
+-- Name: collection_tasks collection_tasks_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.collection_tasks
+    ADD CONSTRAINT collection_tasks_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id);
+
+
+--
+-- TOC entry 4947 (class 2606 OID 16577)
 -- Name: customer_phones customer_phones_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -731,7 +947,7 @@ ALTER TABLE ONLY public.customer_phones
 
 
 --
--- TOC entry 4919 (class 2606 OID 16616)
+-- TOC entry 4950 (class 2606 OID 16616)
 -- Name: payment_info payment_info_customer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -739,11 +955,20 @@ ALTER TABLE ONLY public.payment_info
     ADD CONSTRAINT payment_info_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON DELETE CASCADE;
 
 
--- Completed on 2026-09-16 17:27:00
+--
+-- TOC entry 4953 (class 2606 OID 16737)
+-- Name: payment_promises payment_promises_task_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.payment_promises
+    ADD CONSTRAINT payment_promises_task_id_fkey FOREIGN KEY (task_id) REFERENCES public.collection_tasks(id);
+
+
+-- Completed on 2026-11-09 08:56:53
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 9A32MxSC2CNX3t0yt16loy9oahW60QWkg6agVXHPAvpmJIeEzBLyvXw7hhDR3Ij
+\unrestrict nKkeyEHSVCRR99mPg5OyRZwRk99Wfgea8Gqretw9wkVpEVqS4ZLD95zduHKWAkl
 
